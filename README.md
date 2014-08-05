@@ -31,20 +31,26 @@ Set up a delegate to manage launching the OAuth authentication and handling its 
 
 @interface AppDelegate () <OAuthHandlerDelegate>
 
+-(void)getMyName:(id)sender;
+
 @end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [[OAuthHandler sharedHandler] authenticateWithDelegate:self];
+    // simple version, for an API that does not use state or scope
+    //[[OAuthHandler sharedHandler] authenticateWithDelegate:self];
+    
+    // complex version for an API that uses state or scope, eg. Vimeo
+    [[OAuthHandler sharedHandler] authenticateWithDelegate:self usesState:YES withScope:nil];
     
     return YES;
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    // yourcustomurlscheme://oauth?access_token=324235253442
+    // lsioauth://oauth?access_token=324235253442
     
     NSLog(@"url recieved: %@", url);
     
@@ -55,18 +61,20 @@ Set up a delegate to manage launching the OAuth authentication and handling its 
     
     return YES;
 }
+```
+
+Be sure to handle the OAuthHandler Delegate callbacks for authentication success and failure.
+
+```objc
 
 #pragma mark - OAuthHandler Delegate
 
 - (void)oauthHandlerDidAuthorize
 {
     // let application know that we can access the API now
-    UIAlertView *alertView = [ [UIAlertView alloc] initWithTitle:@"Authorization Succeeded"
-                                                         message:@"Successfully authorized API"
-                                                        delegate:self
-                                               cancelButtonTitle:@"Dismiss"
-                                               otherButtonTitles:nil];
-    [alertView show];
+    NSLog(@"Authentication success!");
+    
+    [self getMyName:nil];
 }
 
 - (void)oauthHandlerDidFailWithError:(NSString *)errorMessage
@@ -102,6 +110,42 @@ NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:someURL];
                        }];
 
     }];
+
+```
+
+For example, in the Vimeo demo app, we make an API call for the logged in user's name.
+
+```objc
+
+-(void)getMyName:(id)sender
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.vimeo.com/me"]];
+    
+    // make sure to sign the request with the OAuth access token before calling the API!
+    [[OAuthHandler sharedHandler] signRequest:request withCallback:^(NSMutableURLRequest *signedRequest) {
+        
+        [NSURLConnection sendAsynchronousRequest:signedRequest
+                                           queue:[NSOperationQueue mainQueue]
+                               completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                   
+               // handle the response here as usual
+               
+               NSError *e;
+               NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&e];
+
+               NSLog(@"response: %@, data: %@", response, jsonDict);
+               
+               UIAlertView *alertView = [ [UIAlertView alloc] initWithTitle:@"Logged In"
+                                                                    message:[jsonDict objectForKey:@"name"]
+                                                                   delegate:self
+                                                          cancelButtonTitle:@"OK"
+                                                          otherButtonTitles:nil];
+               [alertView show];
+               
+           }];
+        
+    }];
+}
 
 ```
 
