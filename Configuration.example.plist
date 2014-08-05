@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>APICredentials</key>
+	<dict>
+		<key>ClientID</key>
+		<string>YOUR_CLIENT_ID_HERE</string>
+		<key>ClientSecret</key>
+		<string>YOUR_CLIENT_SECRET_HERE</string>
+		<key>RedirectURI</key>
+		<string>YOUR_REDIRECT_URI_HERE eg yourappurlscheme://oauth</string>
+		<key>AuthURL</key>
+		<string>YOUR_API_AUTHENTICATION_URL_HERE</string>
+		<key>TokenURL</key>
+		<string>YOUR_API_TOKEN_URL_HERE</string>
+	</dict>
+</dict>
+</plist>
