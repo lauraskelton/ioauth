@@ -6,6 +6,82 @@ Credits
 ===========
 iOAuth was created by Laura Skelton.
 
+Installation
+===========
+* Download iOAuth Demo project
+* Drag the "iOAuth/OAuth" directory from the Finder into your project (Make sure "Copy items into destination group folder", "Create groups for any added folders", and your target are all selected.)
+* Rename Configuration.example.plist to Configuration.plist and drag it from the Finder into your project (Again, make sure "Copy items into destination group folder", "Create groups for any added folders", and your target are all selected.)
+* Register a custom URL Scheme for your application ([Here is a guide- make sure to create a unique name for your app's URL scheme](http://www.idev101.com/code/Objective-C/custom_url_schemes.html))
+* Create an app with the API you're using, and use your custom URL scheme and the path "oauth" as the Redirect URI for your app (eg. yourcustomurlscheme://oauth)
+* Edit Configuration.plist to add the credentials for your API (your Client ID, Client Secret, Redirect URI (yourcustomurlscheme://oauth), and the URLs for your API's Authentication and Access Token requests)
+
+
+Usage
+===========
+See the iOAuth Demo app for examples.
+
+
+Usage Examples:
+
+```objc
+#import "AppDelegate.h"
+#import "OAuthHandler.h"
+
+@interface AppDelegate () <OAuthHandlerDelegate>
+
+@end
+
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [[OAuthHandler sharedHandler] authenticateWithDelegate:self];
+    
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    // yourcustomurlscheme://oauth?access_token=324235253442
+    
+    NSLog(@"url recieved: %@", url);
+    
+    if ([[url host] isEqualToString:@"oauth"]) {
+        // parse the authentication code query
+        [[OAuthHandler sharedHandler] authorizeFromExternalURL:url delegate:self];
+    }
+    
+    return YES;
+}
+
+#pragma mark - OAuthHandler Delegate
+
+- (void)oauthHandlerDidAuthorize
+{
+    // let application know that we can access the API now
+    UIAlertView *alertView = [ [UIAlertView alloc] initWithTitle:@"Authorization Succeeded"
+                                                         message:@"Successfully authorized API"
+                                                        delegate:self
+                                               cancelButtonTitle:@"Dismiss"
+                                               otherButtonTitles:nil];
+    [alertView show];
+}
+
+- (void)oauthHandlerDidFailWithError:(NSString *)errorMessage
+{
+    // Authentication failed
+    UIAlertView *alertView = [ [UIAlertView alloc] initWithTitle:@"Authorization Failed"
+                                                         message:errorMessage
+                                                        delegate:self
+                                               cancelButtonTitle:@"Dismiss"
+                                               otherButtonTitles:nil];
+    [alertView show];
+    
+}
+
+@end
+```
+
 OAuth Process
 ===========
 Get an Authorization Code

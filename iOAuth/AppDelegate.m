@@ -17,7 +17,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [[OAuthHandler sharedHandler] applicationLaunchSignInCheckWithDelegate:self];
+    [[OAuthHandler sharedHandler] authenticateWithDelegate:self];
     
     return YES;
 }
