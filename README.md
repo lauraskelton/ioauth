@@ -23,6 +23,8 @@ See the iOAuth Demo app for examples.
 
 Usage Examples:
 
+Set up a delegate to manage launching the OAuth authentication and handling its success and failure callbacks.
+
 ```objc
 #import "AppDelegate.h"
 #import "OAuthHandler.h"
@@ -80,6 +82,27 @@ Usage Examples:
 }
 
 @end
+```
+
+After the user is authenticated with your API, sign each of your requests with their OAuth access token.
+
+```objc
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:someURL];
+    
+    [[OAuthHandler sharedHandler] signRequest:request withCallback:^(NSMutableURLRequest *signedRequest) {
+            
+            [NSURLConnection sendAsynchronousRequest:signedRequest
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                               
+                               // handle the response here as usual
+                               [self handleResponse:response withData:data andError:error];
+                               
+                           }];
+
+        }];
+
 ```
 
 OAuth Process
