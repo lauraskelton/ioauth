@@ -6,10 +6,14 @@
 //  Copyright (c) 2014 Laura Skelton. All rights reserved.
 //
 
+// verbose logging macro
+#define NSLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+
 #import "OAuthHandler.h"
 #import "QueryParser.h"
 #import "OAuthHandler_Internal.h"
 #import "Configuration.h"
+#import "NSString+Base64.h"
 
 
 @implementation OAuthHandler
@@ -42,7 +46,11 @@
         _sharedHandler.thisRedirectURI = config.thisRedirectURI;
         _sharedHandler.thisAuthURL = config.thisAuthURL;
         _sharedHandler.thisTokenURL = config.thisTokenURL;
-        _sharedHandler.tokenIsValid = NO;
+        if ([[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthDoesntExpireKey] && [[[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthDoesntExpireKey] boolValue]) {
+            _sharedHandler.tokenIsValid = YES;
+        } else {
+            _sharedHandler.tokenIsValid = NO;
+        }
         config = nil;
 
     });
@@ -52,8 +60,24 @@
 
 - (void)authenticateWithDelegate:(id)sender
 {
+    [self authenticateWithDelegate:sender usesState:NO withScope:nil];
+}
+
+- (void)authenticateWithDelegate:(id)sender usesState:(BOOL)usesState withScope:(NSString *)scope
+{
     self.delegate = sender;
-    [self handleUserSignIn:nil];
+    
+    if (self.tokenIsValid) {
+        [delegate oauthHandlerDidAuthorize];
+    } else {
+        self.scope = scope;
+        
+        if (usesState) {
+            [[NSUserDefaults standardUserDefaults] setObject:[self randomStateString] forKey:kiOAuthStateKey];
+        }
+        
+        [self handleUserSignIn:nil];
+    }
 }
 
 - (void)authorizeFromExternalURL:(NSURL *)url delegate:(id)sender
@@ -97,6 +121,12 @@
     return request;
 }
 
+-(NSString *)randomStateString
+{
+    // generate random number, cast to a string
+    return [NSString stringWithFormat:@"%d", arc4random_uniform(189088837)];
+}
+
 #pragma mark - API
 
 -(void)handleUserSignIn:(id)sender
@@ -112,8 +142,19 @@
 
 -(void)launchExternalSignIn:(id)sender
 {
+    NSMutableString *urlString = [[NSString stringWithFormat:@"%@?response_type=code&client_id=%@&redirect_uri=%@", self.thisAuthURL, self.thisClientID, self.thisRedirectURI] mutableCopy];
     
-    NSURL *authURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?response_type=code&client_id=%@&redirect_uri=%@", self.thisAuthURL, self.thisClientID, self.thisRedirectURI]];
+    // add scope if required
+    if (self.scope) {
+        [urlString appendString:[NSString stringWithFormat:@"&scope=%@", self.scope]];
+    }
+    
+    // add state value if required
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthStateKey]) {
+        [urlString appendString:[NSString stringWithFormat:@"&state=%@", [[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthStateKey]]];
+    }
+    
+    NSURL *authURL = [NSURL URLWithString:urlString];
     
     [[UIApplication sharedApplication] openURL:authURL];
 }
@@ -122,6 +163,10 @@
 {
     NSURL *tokenURL = [NSURL URLWithString:self.thisTokenURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:tokenURL];
+    
+    NSString *clientHeaderString = [NSString stringWithFormat:@"%@:%@", self.thisClientID, self.thisClientSecret];
+    NSString *encodedString = [NSString base64String:clientHeaderString];
+    [request setValue:[NSString stringWithFormat:@"basic %@", encodedString] forHTTPHeaderField:@"Authorization"];
     
     [request setHTTPMethod:@"POST"];
     NSString *postString;
@@ -166,19 +211,20 @@
                 }
                 return false;
             } else {
-                if ([jsonDict objectForKey:@"access_token"] != nil && [jsonDict objectForKey:@"refresh_token"] != nil) {
-                    if ([[jsonDict objectForKey:@"access_token"] length] > 0 && [[jsonDict objectForKey:@"refresh_token"] length] > 0) {
-                        [[NSUserDefaults standardUserDefaults] setObject:[jsonDict objectForKey:@"access_token"] forKey:kiOAuthAccessTokenKey];
+                if ([jsonDict objectForKey:@"access_token"] && [[jsonDict objectForKey:@"access_token"] length] > 0) {
+                    [[NSUserDefaults standardUserDefaults] setObject:[jsonDict objectForKey:@"access_token"] forKey:kiOAuthAccessTokenKey];
+                    if ([jsonDict objectForKey:@"refresh_token"] && [[jsonDict objectForKey:@"refresh_token"] length] > 0) {
                         [[NSUserDefaults standardUserDefaults] setObject:[jsonDict objectForKey:@"refresh_token"] forKey:kiOAuthRefreshTokenKey];
-                        self.tokenIsValid = YES;
-                        if ([jsonDict objectForKey:@"expires_in"]) {
-                            if ([[jsonDict objectForKey:@"expires_in"] doubleValue]) {
-                                [self performSelector:@selector(tokenShouldRefresh:) withObject:nil afterDelay:([[jsonDict objectForKey:@"expires_in"] doubleValue] - 200)];
-                            }
-                        }
-                        
-                        return true;
+                         }
+                    self.tokenIsValid = YES;
+                    if ([jsonDict objectForKey:@"expires_in"] && [[jsonDict objectForKey:@"expires_in"] doubleValue]) {
+                        [self performSelector:@selector(tokenShouldRefresh:) withObject:nil afterDelay:([[jsonDict objectForKey:@"expires_in"] doubleValue] - 200)];
+                        [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:kiOAuthDoesntExpireKey];
+                    } else {
+                        [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:kiOAuthDoesntExpireKey];
                     }
+                    
+                    return true;
                 }
             }
         }
@@ -241,6 +287,14 @@
     if ([dict objectForKey:@"error"] != nil) {
         [self.delegate oauthHandlerDidFailWithError:[dict objectForKey:@"error"]];
     } else if ([dict objectForKey:@"code"] != nil) {
+        // check if state matches
+        if ([[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthStateKey]) {
+            if (![dict objectForKey:@"state"] || ![[dict objectForKey:@"state"] isEqualToString:[[NSUserDefaults standardUserDefaults] objectForKey:kiOAuthStateKey]]) {
+                NSLog(@"Error: state returned does not match state sent. Possible security issue.");
+                return;
+            }
+        }
+        
         // Use the Authorization Code to request an Access Token from the API
         self.code = [dict objectForKey:@"code"];
         [self requestAccessToken];

@@ -24,9 +24,10 @@
 		82927F151990049100C202CC /* OAuthHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 82927F131990049100C202CC /* OAuthHandlerTests.m */; };
 		82927F161990049100C202CC /* QueryParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 82927F141990049100C202CC /* QueryParserTests.m */; };
 		82927F1A1990052A00C202CC /* Configuration.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 82927F181990052A00C202CC /* Configuration.example.plist */; };
-		82927F1B1990052A00C202CC /* Configuration.plist in Resources */ = {isa = PBXBuildFile; fileRef = 82927F191990052A00C202CC /* Configuration.plist */; };
 		82927F1E1990053800C202CC /* Configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = 82927F1D1990053800C202CC /* Configuration.m */; };
 		82A8E9E119914F540050B805 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 82A8E9E019914F540050B805 /* README.md */; };
+		82DC9B5C19916241007A863F /* NSString+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 82DC9B5B19916241007A863F /* NSString+Base64.m */; };
+		82DC9B60199167C3007A863F /* Configuration.plist in Resources */ = {isa = PBXBuildFile; fileRef = 82DC9B5F199167C3007A863F /* Configuration.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,10 +66,12 @@
 		82927F131990049100C202CC /* OAuthHandlerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OAuthHandlerTests.m; path = iOAuthTests/OAuthHandlerTests.m; sourceTree = SOURCE_ROOT; };
 		82927F141990049100C202CC /* QueryParserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QueryParserTests.m; path = iOAuthTests/QueryParserTests.m; sourceTree = SOURCE_ROOT; };
 		82927F181990052A00C202CC /* Configuration.example.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Configuration.example.plist; sourceTree = SOURCE_ROOT; };
-		82927F191990052A00C202CC /* Configuration.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Configuration.plist; sourceTree = SOURCE_ROOT; };
 		82927F1C1990053800C202CC /* Configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Configuration.h; path = OAuth/Configuration/Configuration.h; sourceTree = "<group>"; };
 		82927F1D1990053800C202CC /* Configuration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Configuration.m; path = OAuth/Configuration/Configuration.m; sourceTree = "<group>"; };
 		82A8E9E019914F540050B805 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		82DC9B5A19916241007A863F /* NSString+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+Base64.h"; path = "OAuth/NSString+Base64.h"; sourceTree = "<group>"; };
+		82DC9B5B19916241007A863F /* NSString+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+Base64.m"; path = "OAuth/NSString+Base64.m"; sourceTree = "<group>"; };
+		82DC9B5F199167C3007A863F /* Configuration.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Configuration.plist; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +181,8 @@
 				82927F0E1990043E00C202CC /* OAuthHandler.m */,
 				82927F0F1990043E00C202CC /* QueryParser.h */,
 				82927F101990043E00C202CC /* QueryParser.m */,
+				82DC9B5A19916241007A863F /* NSString+Base64.h */,
+				82DC9B5B19916241007A863F /* NSString+Base64.m */,
 			);
 			name = OAuth;
 			sourceTree = "<group>";
@@ -185,8 +190,8 @@
 		82927F17199004C900C202CC /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				82DC9B5F199167C3007A863F /* Configuration.plist */,
 				82927F181990052A00C202CC /* Configuration.example.plist */,
-				82927F191990052A00C202CC /* Configuration.plist */,
 				82927F1C1990053800C202CC /* Configuration.h */,
 				82927F1D1990053800C202CC /* Configuration.m */,
 			);
@@ -271,8 +276,8 @@
 			files = (
 				82A8E9E119914F540050B805 /* README.md in Resources */,
 				82927EE51990027C00C202CC /* Images.xcassets in Resources */,
-				82927F1B1990052A00C202CC /* Configuration.plist in Resources */,
 				82927ED71990027C00C202CC /* InfoPlist.strings in Resources */,
+				82DC9B60199167C3007A863F /* Configuration.plist in Resources */,
 				82927EE01990027C00C202CC /* Main.storyboard in Resources */,
 				82927F1A1990052A00C202CC /* Configuration.example.plist in Resources */,
 			);
@@ -299,6 +304,7 @@
 				82927F111990043E00C202CC /* OAuthHandler.m in Sources */,
 				82927ED91990027C00C202CC /* main.m in Sources */,
 				82927F121990043E00C202CC /* QueryParser.m in Sources */,
+				82DC9B5C19916241007A863F /* NSString+Base64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

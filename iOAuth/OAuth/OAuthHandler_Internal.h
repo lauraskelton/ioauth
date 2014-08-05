@@ -8,6 +8,8 @@
 
 #define kiOAuthAccessTokenKey @"LESiOAuthAccessTokenStorageKey42"
 #define kiOAuthRefreshTokenKey @"LESiOAuthRefreshTokenStorageKey42"
+#define kiOAuthStateKey @"LESiOAuthStateStorageKey42"
+#define kiOAuthDoesntExpireKey @"LESiOAuthDoesntExpireStorageKey42"
 
 typedef void(^OAuthHandlerRefreshTokenCallback)();
 
@@ -19,6 +21,7 @@ typedef void(^OAuthHandlerRefreshTokenCallback)();
 @property (nonatomic, retain) NSString *thisRedirectURI;
 @property (nonatomic, retain) NSString *thisAuthURL;
 @property (nonatomic, retain) NSString *thisTokenURL;
+@property (nonatomic, retain) NSString *scope;
 @property (nonatomic, assign) BOOL tokenIsValid;
 
 -(void)launchExternalSignIn:(id)sender;
@@ -29,5 +32,6 @@ typedef void(^OAuthHandlerRefreshTokenCallback)();
 -(void)handleUserSignIn:(id)sender;
 -(void)handleAuthTokenURL:(NSURL *)url;
 - (NSMutableURLRequest *)signedRequest:(NSMutableURLRequest *)request;
+-(NSString *)randomStateString;
 
 @end

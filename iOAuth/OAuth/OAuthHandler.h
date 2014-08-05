@@ -22,8 +22,13 @@ typedef void(^OAuthHandlerSignedRequestCallback)(NSMutableURLRequest *request);
 // shared OAuthHandler singleton [OAuthHandler sharedHandler]
 + (OAuthHandler *)sharedHandler;
 
+// USE this method for simple OAuth with no state or scope
 // use for initial login, with delegate assigned to handle sign in callback and failure
 - (void)authenticateWithDelegate:(id)sender;
+
+// USE this method for more complex OAuth APIs that require state and scope
+// use for initial login, with delegate assigned to handle sign in callback and failure
+- (void)authenticateWithDelegate:(id)sender usesState:(BOOL)usesState withScope:(NSString *)scope;
 
 // use for redirect from login page with authentication code, to request initial access token
 - (void)authorizeFromExternalURL:(NSURL *)url delegate:(id)sender;

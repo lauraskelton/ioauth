@@ -5,15 +5,15 @@
 	<key>APICredentials</key>
 	<dict>
 		<key>ClientID</key>
-		<string>YOUR_CLIENT_ID_HERE</string>
+		<string>YOUR_VIMEO_CLIENT_ID_HERE</string>
 		<key>ClientSecret</key>
-		<string>YOUR_CLIENT_SECRET_HERE</string>
+		<string>YOUR_VIMEO_CLIENT_SECRET_HERE</string>
 		<key>RedirectURI</key>
-		<string>YOUR_REDIRECT_URI_HERE eg yourappurlscheme://oauth</string>
+		<string>lsioauth://oauth</string>
 		<key>AuthURL</key>
-		<string>YOUR_API_AUTHENTICATION_URL_HERE</string>
+		<string>https://api.vimeo.com/oauth/authorize</string>
 		<key>TokenURL</key>
-		<string>YOUR_API_TOKEN_URL_HERE</string>
+		<string>https://api.vimeo.com/oauth/access_token</string>
 	</dict>
 </dict>
 </plist>

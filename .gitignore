@@ -136,3 +136,6 @@ xcuserdata
 
 config.sh
 Configuration.plist
+Configuration-hs.plist
+Configuration-vimeo.plist
+
