@@ -88,20 +88,20 @@ After the user is authenticated with your API, sign each of your requests with t
 
 ```objc
 
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:someURL];
-    
-    [[OAuthHandler sharedHandler] signRequest:request withCallback:^(NSMutableURLRequest *signedRequest) {
-            
-            [NSURLConnection sendAsynchronousRequest:signedRequest
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                               
-                               // handle the response here as usual
-                               [self handleResponse:response withData:data andError:error];
-                               
-                           }];
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:someURL];
 
-        }];
+[[OAuthHandler sharedHandler] signRequest:request withCallback:^(NSMutableURLRequest *signedRequest) {
+        
+        [NSURLConnection sendAsynchronousRequest:signedRequest
+                                   queue:[NSOperationQueue mainQueue]
+                       completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                           
+                           // handle the response here as usual
+                           [self handleResponse:response withData:data andError:error];
+                           
+                       }];
+
+    }];
 
 ```
 
